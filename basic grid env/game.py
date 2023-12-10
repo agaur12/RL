@@ -1,12 +1,11 @@
 import pygame as pg
 import sys
-from env import Grid_Environment
-import math
+from base_env import GridEnvironment
 
-# Initialize pg
+
 pg.init()
 
-env = Grid_Environment(4, 4)
+env = GridEnvironment(4, 4, rand_goal=True, rand_start=True)
 
 WIDTH, HEIGHT = 1000, 1000
 GRID_SIZE = int(1000 / (env.max_x + 1))
@@ -20,6 +19,7 @@ pg.display.set_caption("Grid Game")
 agent_pos = env.state
 objective_pos = env.goal
 
+
 running = True
 while running:
     for event in pg.event.get():
@@ -28,13 +28,13 @@ while running:
 
     keys = pg.key.get_pressed()
     if keys[pg.K_a]:
-        env.step("left")
+        env.step(3)
     if keys[pg.K_d]:
-        env.step("right")
+        env.step(1)
     if keys[pg.K_s]:
-        env.step("down")
+        env.step(2)
     if keys[pg.K_w]:
-        env.step("up")
+        env.step(0)
     agent_pos = env.state
 
     screen.fill(GRID_COLOR)
@@ -46,6 +46,9 @@ while running:
     pg.draw.rect(screen, AGENT_COLOR, ((agent_pos[0] * GRID_SIZE), (HEIGHT - (agent_pos[1] * GRID_SIZE) - GRID_SIZE), GRID_SIZE, GRID_SIZE))
     pg.draw.rect(screen, OBJECTIVE_COLOR, (objective_pos[0] * GRID_SIZE, (HEIGHT - (objective_pos[1] * GRID_SIZE) - GRID_SIZE), GRID_SIZE, GRID_SIZE))
     pg.display.flip()
+
+    if agent_pos == objective_pos:
+        env.reset()
 
     pg.time.Clock().tick(10)
 
