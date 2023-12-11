@@ -3,13 +3,17 @@ import numpy as np
 
 
 class PolicyNetwork(tf.keras.Model):
-    def __init__(self, num_actions: int, hidden_units: int = 128):
+    def __init__(self, num_actions: int, hidden_units: int = 256):  
         super(PolicyNetwork, self).__init__()
-        self.hidden_layer = tf.keras.layers.Dense(hidden_units, activation="relu")
+        self.hidden_layer_1 = tf.keras.layers.Dense(hidden_units, activation="relu")
+        self.hidden_layer_2 = tf.keras.layer.Dense(hidden_units / num_actions, activation="relu")
+        self.hidden_layer_3 = tf.keras.layer.Dense((hidden_units / num_actions) / num_actions, activation="relu")
         self.output_layer = tf.keras.layers.Dense(num_actions, activation="softmax")
 
     def call(self, state):
-        x = self.hidden_layer(state)
+        x = self.hidden_layer_1(state)
+        x = self.hidden_layer_2(x)
+        x = self.hidden_layer_3(x)
         x = self.output_layer(x)
         return x
 
