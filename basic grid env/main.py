@@ -1,8 +1,9 @@
 import numpy as np
 from base_env import GridEnvironment
-from model import PPOAgent
-import tensorflow as tf
-import matplotlib.pyplot as plt
+#from model import PPOAgent
+#import tensorflow as tf
+from stable_baselines3 import PPO
+#import matplotlib.pyplot as plt
 
 rewards_ = []
 len_rewards = []
