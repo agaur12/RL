@@ -3,6 +3,7 @@ import random
 import math
 import gym
 from gym import spaces
+import math
 
 
 class GridEnvironment(gym.Env):
@@ -17,6 +18,8 @@ class GridEnvironment(gym.Env):
         self.done = False
         self.episode_length = 0
         self.distances = []
+        self.max_episode_length = int(np.log(np.power(self.max_x * self.max_y, 5)) * int(np.power(20 * self.max_x * self.max_y, 0.25))) + 100.0
+        print(self.max_episode_length)
         if rand_start:
             self.init_x, self.init_y = random.randint(1, self.max_x), random.randint(1, self.max_x)
             self.x, self.y = self.init_x, self.init_y
@@ -39,7 +42,7 @@ class GridEnvironment(gym.Env):
             self.x, self.y = 0, 0
         if self.rand_goal:
             self.goal = [random.randint(1, self.max_x), random.randint(1, self.max_x)]
-        #self.x, self.y = random.randint(1, self.max_x), random.randint(1, self.max_x)
+        # self.x, self.y = random.randint(1, self.max_x), random.randint(1, self.max_x)
         """
         self.goal = [random.randint(1, self.max_x), random.randint(1, self.max_x)]
         while self.goal == [self.x, self.y]:
@@ -65,13 +68,14 @@ class GridEnvironment(gym.Env):
         return self.state, self.reward, self.done
 
     def get_reward(self):
-        if self.episode_length > 200:
+        if self.episode_length > (self.max_x * self.max_y):
             reward = -1
         elif self.state == self.goal:
             reward = 10
         else:
-            reward = -0.01
-            reward += (self.distances[-1] - math.hypot(self.state[0] - self.goal[0], self.state[1] - self.goal[1])) / 1000
+            reward = -0.5
+            reward += (self.distances[-1] - math.hypot(self.state[0] - self.goal[0],
+                                                       self.state[1] - self.goal[1])) / 100
         return reward
 
     def take_action(self):
@@ -95,3 +99,4 @@ class GridEnvironment(gym.Env):
             self.y = self.y
 
         return [self.x, self.y]
+

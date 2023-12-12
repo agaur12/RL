@@ -2,19 +2,49 @@ import numpy as np
 from base_env import GridEnvironment
 from model import PPOAgent
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
-env = GridEnvironment(size_x=4, size_y=4, rand_goal=False, rand_start=True)
+rewards_ = []
+len_rewards = []
+episodes = 0
+
+env = GridEnvironment(size_x=11, size_y=11, rand_goal=False, rand_start=True)
 
 num_actions = env.action_space.n
 state = env.reset()
 
 ppo_agent = PPOAgent(num_actions)
-num_episodes = 1000
+num_episodes = 10000
 max_steps_per_episode = 200
 
 best_reward = float('-inf')
-early_stop_patience = 100
+early_stop_patience = 250
 early_stop_counter = 0
+
+checkpoint_path = "weights/policy_network_weights.ckpt"
+
+
+"""
+def graph(episodes=episodes, rewards=rewards_, len_rewards=len_rewards):
+    plt.figure(1)
+    plt.plot(range(episodes), rewards)
+    plt.title(f"Total Reward vs Episode")
+    plt.xlabel("Episode")
+    plt.ylabel("Total Reward")
+    plt.show()
+    plt.figure(2)
+    plt.plot(range(episodes), len_rewards)
+    plt.title('Episode Length Over Time')
+    plt.xlabel('Episode')
+    plt.ylabel('Episode Length')
+    plt.show()
+"""
+
+try:
+    ppo_agent.load_weights(checkpoint_path)
+    print("Weights loaded successfully.")
+except:
+    print("No weights to load.")
 
 for episode in range(num_episodes):
     state = env.reset()
@@ -36,6 +66,9 @@ for episode in range(num_episodes):
         rewards.append(reward)
 
         if done:
+            rewards_.append(np.sum(rewards))
+            len_rewards.append(len(rewards))
+            episodes += 1
             break
 
     states = np.vstack(states)
@@ -48,19 +81,29 @@ for episode in range(num_episodes):
     ppo_agent.update_policy(states, actions, old_probabilities, advantages)
 
     if episode % 10 == 0:
-        print(f"Episode: {episode}, Total Reward: {np.sum(rewards)}, Episode Length: {len(rewards)}, First State: {first_state}, Last State: {state}")
+        print(
+            f"Episode: {episode}, Total Reward: {np.sum(rewards)}, Episode Length: {len(rewards)}, First State: {first_state}, Last State: {state}")
 
     if np.sum(rewards) > best_reward:
-        best_reward = np.sum(rewards)
+        print(
+            f"Episode: {episode}, Total Reward: {np.sum(rewards)}, Episode Length: {len(rewards)}, First State: {first_state}, Last State: {state}")
         policy_network_weights = ppo_agent.policy_network.get_weights()
         optimizer_checkpoint = tf.train.Checkpoint(optimizer=ppo_agent.optimizer)
-        ppo_agent.policy_network.save_weights(f'weights\policy_network_weights_episode_{episode}.ckpt')
+        best_reward = np.sum(rewards)
         early_stop_counter = 0
-    else:
+    elif np.sum(rewards) == best_reward:
+        print(
+            f"Episode: {episode}, Total Reward: {np.sum(rewards)}, Episode Length: {len(rewards)}, First State: {first_state}, Last State: {state}")
         early_stop_counter += 1
+    else:
+        None
 
     if early_stop_counter >= early_stop_patience:
-        print(f"Training stopped early at episode {episode} due to lack of improvement with a best reward of {best_reward}.")
+        print(
+            f"Training stopped early at episode {episode} due to lack of improvement with a best reward of {best_reward} and episode length of {len(rewards)}.")
         break
 
+ppo_agent.policy_network.save_weights(checkpoint_path)
+#print(episodes, rewards_, len_rewards)
+#graph()
 env.close()

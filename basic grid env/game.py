@@ -5,7 +5,7 @@ from base_env import GridEnvironment
 
 pg.init()
 
-env = GridEnvironment(4, 4, rand_goal=True, rand_start=True)
+env = GridEnvironment(4, 4, rand_goal=True, rand_start=True )
 
 WIDTH, HEIGHT = 1000, 1000
 GRID_SIZE = int(1000 / (env.max_x + 1))

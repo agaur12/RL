@@ -1,2 +1,2 @@
-model_checkpoint_path: "policy_network_weights_episode_100.ckpt"
-all_model_checkpoint_paths: "policy_network_weights_episode_100.ckpt"
+model_checkpoint_path: "policy_network_weights.ckpt"
+all_model_checkpoint_paths: "policy_network_weights.ckpt"
