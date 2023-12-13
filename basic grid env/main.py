@@ -1,7 +1,6 @@
 import numpy as np
 from base_env import GridEnvironment
-#from model import PPOAgent
-#import tensorflow as tf
+#from old_model import PPOAgent
 from stable_baselines3 import PPO
 #import matplotlib.pyplot as plt
 

@@ -68,29 +68,30 @@ class GridEnvironment(gym.Env):
         return self.state, self.reward, self.done
 
     def get_reward(self):
-        if self.episode_length > (self.max_x * self.max_y):
-            reward = -1
-        elif self.state == self.goal:
-            reward = 10
-        else:
-            reward = -0.5
-            reward += self.distances[-1] / 100
+        TIME_PENALTY = -0.05
+        PROGRESS_REWARD = 0.5
+        STAGNATION_PENALTY = -0.2
+        GOAL_REWARD = 50.0
+        OUT_PENALTY = -50.0
+        reward = TIME_PENALTY
+        if self.distances[-1] < self.distances[-2]:
+            reward += PROGRESS_REWARD
+        if self.distances[-1] >= self.distances[-2]:
+            reward += STAGNATION_PENALTY
+        if self.state == self.goal:
+            reward = GOAL_REWARD
+        if self.x > self.max_x or self.y > self.max_y or self.x < 0 or self.y < 0:
+            reward = OUT_PENALTY
         return reward
 
     def take_action(self):
-        if (self.action == "left" and self.x == 0) or (self.action == "right" and self.x == self.max_x):
-            self.x = self.x
-            self.episode_length -= 1
-        elif self.action == "left":
+        if self.action == "left":
             self.x -= 1
         elif self.action == "right":
             self.x += 1
         else:
             self.x = self.x
-        if (self.action == "down" and self.y == 0) or (self.action == "up" and self.y == self.max_x):
-            self.y = self.y
-            self.episode_length -= 1
-        elif self.action == "down":
+        if self.action == "down":
             self.y -= 1
         elif self.action == "up":
             self.y += 1
