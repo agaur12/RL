@@ -9,7 +9,10 @@ import sys
 
 
 class GridEnvironment(gym.Env):
-
+    metadata = {
+        'render.modes': ['human']
+    }
+    render_mode = 'human'
     def __init__(self, size_x: int, size_y: int, rand_goal: bool = False, rand_start: bool = False, agent: bool = True):
         super(GridEnvironment, self).__init__()
         self.actions = ["up", "right", "down", "left"]
@@ -19,7 +22,7 @@ class GridEnvironment(gym.Env):
         self.max_y = size_y - 1
         self.done = False
         self.episode_length = 0
-        self.distances = []
+
         self.goals = []
         self.starts = []
         self.agent = agent
@@ -36,6 +39,7 @@ class GridEnvironment(gym.Env):
         self.goals.append(self.goal)
         self.starts.append(self.starts)
         self.state = [self.x, self.y]
+        self.distances = [math.dist(self.state, self.goal)]
         self.action_space = spaces.Discrete(len(self.actions))
         self.observation_space = spaces.Box(low=0, high=max(self.max_x, self.max_y), shape=(2,), dtype=np.float32)
 
@@ -152,7 +156,3 @@ class GridEnvironment(gym.Env):
 
         pg.quit()
         sys.exit()
-
-
-env = GridEnvironment(size_x=11, size_y=11, rand_goal=True, rand_start=True, agent=False)
-env.render()
