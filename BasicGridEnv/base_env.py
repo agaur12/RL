@@ -20,12 +20,14 @@ class GridEnvironment(gym.Env):
         self.rand_goal = rand_goal
         self.max_x = size_x - 1
         self.max_y = size_y - 1
-        self.done = False
+        self.terminated = False
         self.episode_length = 0
+        self.truncated = False
 
         self.goals = []
         self.starts = []
         self.agent = agent
+        self.info = {}
         if rand_goal:
             self.goal = [random.randint(1, self.max_x), random.randint(1, self.max_x)]
         else:
@@ -43,7 +45,11 @@ class GridEnvironment(gym.Env):
         self.action_space = spaces.Discrete(len(self.actions))
         self.observation_space = spaces.Box(low=0, high=max(self.max_x, self.max_y), shape=(2,), dtype=np.float32)
 
-    def reset(self):
+    def reset(self, seed=None):
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed)
+
         if self.rand_goal:
             self.goal = [random.randint(1, self.max_x), random.randint(1, self.max_x)]
         if self.rand_start:
@@ -52,14 +58,14 @@ class GridEnvironment(gym.Env):
                 self.x, self.y = random.randint(1, self.max_x), random.randint(1, self.max_x)
         else:
             self.x, self.y = 0, 0
-        self.done = False
+        self.terminated = False
         self.episode_length = 0
         self.state = [self.x, self.y]
         return np.array(self.state)
 
     def step(self, action):
         if self.state == self.goal:
-            self.done = True
+            self.terminated = True
 
         self.action = self.actions[action]
         self.distances.append(math.dist(self.state, self.goal))
@@ -68,8 +74,11 @@ class GridEnvironment(gym.Env):
         self.episode_length += 1
 
         if self.state == self.goal:
-            self.done = True
-        return self.state, self.reward, self.done
+            self.terminated = True
+        if self.x > self.max_x or self.y > self.max_y or self.x < 0 or self.y < 0:
+            self.truncated = True
+        done = self.terminated or self.truncated
+        return self.state, self.reward, self.terminated, self.truncated, self.info
 
     def get_reward(self):
         TIME_PENALTY = -0.05
