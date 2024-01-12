@@ -6,7 +6,6 @@ from gymnasium import spaces
 import math
 import pygame as pg
 import sys
-#import Box2d
 
 
 class TagEnvironment(gym.Env):

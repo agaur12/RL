@@ -1,6 +1,7 @@
 import pygame
 import sys
 import pymunk
+from pymunk.pygame_util import
 
 pygame.init()
 
@@ -18,7 +19,7 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 font = pygame.font.Font(None, 36)
 
-player_radius = 10
+player_radius = 20
 
 space = pymunk.Space()
 space.gravity = (0, 0)
@@ -51,13 +52,10 @@ while True:
             sys.exit()
 
     keys = pygame.key.get_pressed()
-    tagger_body.velocity = (keys[pygame.K_d] - keys[pygame.K_a]) * tagger_speed_multiplier * 100, (keys[pygame.K_s] - keys[pygame.K_w]) * tagger_speed_multiplier * 100
+    tagger_body.velocity = (keys[pygame.K_d] - keys[pygame.K_a]) * tagger_speed_multiplier * 100, (keys[pygame.K_w] - keys[pygame.K_s]) * tagger_speed_multiplier * 100
     runner_body.velocity = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * runner_speed_multiplier * 100, (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * runner_speed_multiplier * 100
 
     space.step(1 / 60.0)
-
-    if pymunk.pygame_util.collide_shapes(tagger_shape, runner_shape):
-        tagger_points += 1
 
     screen.fill(white)
     pygame.draw.rect(screen, black, (0, 0, width, height), 2)
