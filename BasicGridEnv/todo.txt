@@ -1,5 +1,0 @@
-Add layers
-change neurons per layer
-dropout layers
-change activation function
-hyperparameter tuning
